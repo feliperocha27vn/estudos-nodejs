@@ -1,14 +1,16 @@
 import { Database } from "./database.js";
 import { randomUUID } from "node:crypto";
+import { buildRoutePath } from "./utils/build-route-path.js";
 
 const database = new Database();
 
 export const routes = [
+  // listagem
   {
     // método que será chamado
     method: "GET",
     // caminho da requisição
-    path: "/users",
+    path: buildRoutePath("/users"),
     // o que ela vai fazer
     handler: (req, res) => {
       // armazenando os dados na const
@@ -19,9 +21,10 @@ export const routes = [
       return res.end(JSON.stringify(users));
     },
   },
+  // inserção
   {
     method: "POST",
-    path: "/users",
+    path: buildRoutePath("/users"),
     handler: (req, res) => {
       const { name, email } = req.body;
 
@@ -38,5 +41,10 @@ export const routes = [
 
       return res.writeHead(201).end();
     },
+  },
+  {
+    method: "DELETE",
+    path: buildRoutePath("/users/:id"),
+    handler(req, res) {},
   },
 ];
