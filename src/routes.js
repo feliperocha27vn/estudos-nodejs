@@ -13,10 +13,19 @@ export const routes = [
     path: buildRoutePath("/users"),
     // o que ela vai fazer
     handler: (req, res) => {
+      const { search } = req.query;
       // armazenando os dados na const
       // selecionando o método (select) que vamos utilizar
       // passando como param a tabela que queremos fazer o select
-      const users = database.select("users");
+      const users = database.select(
+        "users",
+        search
+          ? {
+              name: search,
+              email: search,
+            }
+          : null
+      );
 
       return res.end(JSON.stringify(users));
     },
@@ -42,11 +51,32 @@ export const routes = [
       return res.writeHead(201).end();
     },
   },
+  //deleção
   {
     method: "DELETE",
     path: buildRoutePath("/users/:id"),
     handler: (req, res) => {
-      return res.end();
+      const { id } = req.params;
+
+      database.delete("users", id);
+
+      return res.writeHead(204).end();
+    },
+  },
+  //atualização
+  {
+    method: "PUT",
+    path: buildRoutePath("/users/:id"),
+    handler: (req, res) => {
+      const { id } = req.params;
+      const { name, email } = req.body;
+
+      database.update("users", id, {
+        name,
+        email,
+      });
+
+      return res.writeHead(204).end();
     },
   },
 ];

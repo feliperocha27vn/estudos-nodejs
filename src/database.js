@@ -24,9 +24,17 @@ export class Database {
     fs.writeFile(databasePath, JSON.stringify(this.#database));
   }
 
-  select(table) {
+  select(table, search) {
     // a data só recebe valor se a tabela existir
-    const data = this.#database[table] ?? [];
+    let data = this.#database[table] ?? [];
+
+    if (search) {
+      data = data.filter((row) => {
+        return Object.entries(search).some(([key, value]) => {
+          return row[key].toLowerCase().includes(value.toLowerCase());
+        });
+      });
+    }
 
     return data;
   }
@@ -46,5 +54,29 @@ export class Database {
     this.#persist();
 
     return data;
+  }
+
+  delete(table, id) {
+    // BUSCANDO NO BANCO O ID
+    const rowIndex = this.#database[table].findIndex((row) => row.id === id);
+    // SE TIVER A LINHA
+    if (rowIndex > -1) {
+      // SELECIONANDO E EXCLUINDO A LINHA
+      this.#database[table].splice(rowIndex, 1);
+      // persistindo o nosso banco
+      this.#persist();
+    }
+  }
+
+  update(table, id, data) {
+    // BUSCANDO NO BANCO O ID
+    const rowIndex = this.#database[table].findIndex((row) => row.id === id);
+    // SE TIVER A LINHA
+    if (rowIndex > -1) {
+      // reescrevendo os dados
+      this.#database[table][rowIndex] = { id, ...data };
+      // persistindo no nosso banco
+      this.#persist();
+    }
   }
 }
